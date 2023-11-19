@@ -1,6 +1,12 @@
-interface ZodUnknown { type: 'unknown' }
-interface ZodNumber { type: 'number' }
-interface ZodString { type: 'string' }
+interface ZodUnknown {
+  type: 'unknown'
+}
+interface ZodNumber {
+  type: 'number'
+}
+interface ZodString {
+  type: 'string'
+}
 
 interface ZodArray<T extends ZodType> {
   type: 'array'
@@ -34,3 +40,23 @@ type Infer<T extends ZodType> = T extends ZodUnknown
         : T extends ZodObject<ZodType>
           ? InferZodObject<T>
           : 'invalid type'
+
+const string = (): ZodString => ({ type: 'string' })
+const number = (): ZodNumber => ({ type: 'number' })
+const unknown = (): ZodUnknown => ({ type: 'unknown' })
+const array = <T extends ZodType>(element: T): ZodArray<T> => ({
+  type: 'array',
+  element
+})
+const object = <T extends ZodType>(fields: Record<string, T>): ZodObject<T> => ({
+  type: 'object',
+  fields
+})
+
+export const z = {
+  string,
+  number,
+  unknown,
+  array,
+  object
+}
