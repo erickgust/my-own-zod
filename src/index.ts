@@ -13,6 +13,11 @@ interface ZodString {
   parse: (value: unknown) => string
 }
 
+interface ZodBoolean {
+  type: 'boolean'
+  parse: (value: unknown) => boolean
+}
+
 interface ZodArray<T extends ZodType> {
   type: 'array'
   element: T
@@ -38,16 +43,26 @@ type InferZodObject<T extends ZodObject<ZodType>> = {
 
 type Infer<T extends ZodType> = T extends ZodUnknown
   ? unknown
-  : T extends ZodNumber
-    ? number
-    : T extends ZodString
-      ? string
-      : T extends ZodArray<infer E>
-        ? Array<Infer<E>>
-        : T extends ZodObject<ZodType>
-          ? InferZodObject<T>
-          : 'invalid type'
+  : T extends ZodBoolean
+    ? boolean
+    : T extends ZodNumber
+      ? number
+      : T extends ZodString
+        ? string
+        : T extends ZodArray<infer E>
+          ? Array<Infer<E>>
+          : T extends ZodObject<ZodType>
+            ? InferZodObject<T>
+            : 'invalid type'
 
+const bool = (): ZodBoolean => ({
+  type: 'boolean',
+  parse (value) {
+    if (typeof value !== 'boolean') throw new Error('Not a boolean')
+
+    return value
+  }
+})
 const string = (): ZodString => ({
   type: 'string',
   parse (value) {
@@ -97,6 +112,7 @@ const object = <T extends ZodType>(fields: Record<string, T>): ZodObject<T> => (
 })
 
 export const z = {
+  bool,
   string,
   number,
   unknown,
