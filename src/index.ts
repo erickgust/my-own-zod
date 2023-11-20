@@ -32,6 +32,7 @@ interface ZodObject<T extends ZodType> {
 
 type ZodType =
   | ZodUnknown
+  | ZodBoolean
   | ZodNumber
   | ZodString
   | ZodArray<ZodType>
