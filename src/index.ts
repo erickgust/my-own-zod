@@ -24,9 +24,9 @@ interface ZodArray<T extends ZodType> {
   parse: (value: unknown) => Array<Infer<T>>
 }
 
-interface ZodObject<T extends ZodType> {
+interface ZodObject<T extends Record<string, ZodType>> {
   type: 'object'
-  fields: Record<string, T>
+  fields: T
   parse: (value: unknown) => InferZodObject<ZodObject<T>>
 }
 
@@ -36,9 +36,9 @@ type ZodType =
   | ZodNumber
   | ZodString
   | ZodArray<ZodType>
-  | ZodObject<ZodType>
+  | ZodObject<Record<string, ZodType>>
 
-type InferZodObject<T extends ZodObject<ZodType>> = {
+type InferZodObject<T extends ZodObject<Record<string, ZodType>>> = {
   [K in keyof T['fields']]: Infer<T['fields'][K]>
 }
 
@@ -52,7 +52,7 @@ type Infer<T extends ZodType> = T extends ZodUnknown
         ? string
         : T extends ZodArray<infer E>
           ? Array<Infer<E>>
-          : T extends ZodObject<ZodType>
+          : T extends ZodObject<Record<string, ZodType>>
             ? InferZodObject<T>
             : 'invalid type'
 
@@ -98,7 +98,7 @@ const array = <T extends ZodType>(element: T): ZodArray<T> => ({
     return value
   }
 })
-const object = <T extends ZodType>(fields: Record<string, T>): ZodObject<T> => ({
+const object = <T extends Record<string, ZodType>>(fields: T): ZodObject<T> => ({
   type: 'object',
   fields,
   parse (value) {
